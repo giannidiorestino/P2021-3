@@ -39,7 +39,7 @@
 \newtheorem{example}{Example}
 
 
-\title{Probability 2021: Part 3 \\
+\title{Probability 2021 \\ Part 3 \\
 Gaussian probability measure}
 \author[G. Pistone]{Giovanni Pistone}
 \address{Collegio Carlo Alberto Room 203a}
@@ -51,20 +51,21 @@ Gaussian probability measure}
 \maketitle
 \tableofcontents
 
-The present handout covers generalities about the Central Limit Theorem (IID
+The present chapter covers the generalities about the Central Limit Theorem (IID
 case) and  about the multivariate Gaussian distribution, together with the relevant matrix theory. Gaussian random
-variables are discussed in every textbook, for example, see P. Malliavin
-\cite[Ch.~V]{malliavin:1995} and  S.H. Ross \cite[Ch.~10]{ross:2010introduction10}. A classical reference on Gaussian random
+variables are discussed in every Probability textbook, for example, see P. Malliavin
+\cite[Ch.~V]{malliavin:1995} (intermediate) and  S.H. Ross \cite[Ch.~10]{ross:2010introduction10} (elementary, many ediitons available). A classical reference about Gaussian random
 variables is \cite{anderson:2003-3ed} (many reprints available). A
 modern advanced reference for positive definite matrices is
-\cite{bhatia:2007}.
+\cite{bhatia:2007}. An advanced reference about Gaussian random variables from the functional point of view is \cite{janson:1997-GHS}
+
+Many topics are reviewed in the form of an exercise, for example, the basic properties of the
+uni-variate Gaussian distribution. The reader is urged to check this material. When needed, extensive asides treat relevant topics in Linear Algebra and Calculus.
 
 \section{Univariate Gaussian probability measure}
 \label{sec:introduction}
 
-Here we review in form of an exercise, the basic properties of the
-univariate Gaussian distribution. We will return to this topics after
-a formal presentation of the relevant Mathematics.
+
 
 \begin{example}[Gaussian distribution]
 The standard Gaussian distribution is the probability measure $\nu$
@@ -83,7 +84,7 @@ to the Lebesgue measure space. The distribution function is $F_\nu(x) = (2\pi)^{
     \int \phi'(x) \psi(x)  \nu(dx) = \int \phi(x) \delta \psi(x) \ \nu(dx)
   \end{equation*}
 for all $\phi,\psi \in C^1$ such that the integrals are well defined.
-\item Compute $H_n = \delta^n 1$, $n \in \N$.
+\item Compute $H_n = \delta^n 1$, $n \in \N$. [Hermite polynomials.]
 \end{enumerate}  
 \end{example}
 
@@ -91,8 +92,8 @@ for all $\phi,\psi \in C^1$ such that the integrals are well defined.
   \begin{enumerate}
   \item Show that the Lebesgue measure on $]0,1[^2$ is the product
     measure of the two Lebesgue measure on the factors $]0,1[$.
-  \item Use the previous remark to construct two independent Gaussian random variables.
-  \item If $Y_1,Y_2$ are independent standard Gaussian random variables, compute the distribution of $Y = (Y_1 + Y_2)/\sqrt 2$.
+  \item Use the previous remark to construct two independent Gaussian random variables. [Use $F_\nu^{-1}$ to transform the uniform to the Gaussian.]
+  \item If $Y_1,Y_2$ are independent standard Gaussian random variables, compute the distribution of $Y = (Y_1 + Y_2)/\sqrt 2$. [Use the change-of-variable equation for the double integral.]
   \item If $Y_1,Y_2,Y_3$ are independent standard Gaussian random
     variables, compute the distribution of $Y = (Y_1+Y_2+Y_3)/\sqrt 3$.
   \end{enumerate}
