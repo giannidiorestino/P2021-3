@@ -9,6 +9,7 @@
 \usepackage{macros}
 \usepackage{mathabx}
 \usepackage{mathtools}
+\usepackage{cleveref}
 
 \newcommand{\Dspace}[2]{\mathbb D^{#1,#2}}
 \newcommand{\Image}{\operatorname{image}}
@@ -37,12 +38,13 @@
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
 \newtheorem{example}{Example}
+\newtheorem{exercise}{Exercise}
 
 
 \title{Probability 2021 \\ Part 3 \\
 Gaussian probability measure}
 \author[G. Pistone]{Giovanni Pistone}
-\address{Collegio Carlo Alberto Room 203a}
+\address{de Castro Statistics, Collegio Carlo Alberto}
 \email{giovanni.pistone@carloalberto.org}
 \urladdr{https://www.giannidiorestino.it/}
 \date{DRAFT \today}
@@ -51,24 +53,38 @@ Gaussian probability measure}
 \maketitle
 \tableofcontents
 
-The present chapter covers the generalities about the Central Limit Theorem (IID
-case) and  about the multivariate Gaussian distribution, together with the relevant matrix theory. Gaussian random
-variables are discussed in every Probability textbook, for example, see P. Malliavin
-\cite[Ch.~V]{malliavin:1995} (intermediate) and  S.H. Ross \cite[Ch.~10]{ross:2010introduction10} (elementary, many ediitons available). A classical reference about Gaussian random
-variables is \cite{anderson:2003-3ed} (many reprints available). A
-modern advanced reference for positive definite matrices is
-\cite{bhatia:2007}. An advanced reference about Gaussian random variables from the functional point of view is \cite{janson:1997-GHS}
+The present chapter covers the generalities about the Central Limit
+Theorem (IID case) and about the multivariate Gaussian distribution,
+together with the relevant matrix theory. Gaussian random variables
+are discussed in every Probability textbook, for example, see
+P. Malliavin \cite[Ch.~V]{malliavin:1995} (intermediate) and S.H. Ross
+\cite[Ch.~10]{ross:2010introduction10} (elementary, many editons
+available). A classical reference about Gaussian random variables is
+\cite{anderson:2003-3ed} (many reprints available). A modern advanced
+reference for positive definite matrices is \cite{bhatia:2007}. An
+advanced reference about Gaussian random variables from the functional
+point of view is \cite{janson:1997-GHS}
 
-Many topics are reviewed in the form of an exercise, for example, the basic properties of the
-uni-variate Gaussian distribution. The reader is urged to check this material. When needed, extensive asides treat relevant topics in Linear Algebra and Calculus.
+Many topics are reviewed in the form of an exercise, for example, the
+basic properties of the uni-variate Gaussian distribution. The reader
+is urged to check this material. When needed, extensive asides treat
+relevant topics in Linear Algebra and Calculus. A reference for the R
+language is \cite{rcoreteam:2020}.
 
 \section{Univariate Gaussian probability measure}
 \label{sec:introduction}
 
-\begin{example}[Gaussian distribution]
 The standard Gaussian distribution is the probability measure $\nu$
 with density $\gamma(z) = (2\pi)^{-1/2} \euler^{-z^2/2}$ with respect
-to the Lebesgue measure space. The distribution function is $F_\nu(x) = (2\pi)^{-1/2} \int_{-\infty}^x \euler^{-u^2/2} \ du$ with no closed form expression.
+to the Lebesgue measure space. The distribution function is
+$F_\nu(x) = (2\pi)^{-1/2} \int_{-\infty}^x \euler^{-u^2/2} \ du$ with
+no closed form expression. A basic graph of the density is produced in
+R with
+\begin{verbatim}
+x <- -400:400/100; plot(x,dnorm(x),type="l")
+\end{verbatim}
+%
+\begin{exercise}[Gaussian distribution]\ 
 \begin{enumerate}
 \item Check that $\gamma$ is indeed a density.
 \item Compute the moments $\nu_n = \int x^n \ \nu(dx)$, $n \in \N$. [Use $\gamma'(x) = -x \gamma(x)$.]
@@ -77,16 +93,17 @@ to the Lebesgue measure space. The distribution function is $F_\nu(x) = (2\pi)^{
 \item Compute the first two derivatives of the cumulant generating function $\kappa_\nu(t) = \log M_\nu(t)$.
 \item Compute the density of $X = aZ + b$ with $a,b \in \R$ and $Z \sim p_\nu$. These are the general Gaussian random variables. 
 \item Compute the density of $Z + b$ with respect to the distribution of $Z$.
-\item Compute $\delta \psi$ such that
+\item \label{item:stein} Compute $\delta \psi$ such that
   \begin{equation*}
     \int \phi'(x) \psi(x)  \nu(dx) = \int \phi(x) \delta \psi(x) \ \nu(dx)
   \end{equation*}
 for all $\phi,\psi \in C^1$ such that the integrals are well defined.
-\item Compute $H_n = \delta^n 1$, $n \in \N$. [Hermite polynomials.]
+\item Show that $H_n = \delta^n 1$, $n \in \N$ is a polynomial of degree $n$. [Hermite polynomials.]
+\item Prove that the Hermite polinomials are orthogonal in $L^2(\gamma)$. [Use \cref{item:stein}.]
 \end{enumerate}  
-\end{example}
+\end{exercise}
 
-\begin{example}[Independent Gaussian random variables]
+\begin{exercise}[Independent Gaussian random variables]\ 
   \begin{enumerate}
   \item Show that the Lebesgue measure on $]0,1[^2$ is the product
     measure of the two Lebesgue measure on the factors $]0,1[$.
@@ -95,22 +112,36 @@ for all $\phi,\psi \in C^1$ such that the integrals are well defined.
   \item If $Y_1,Y_2,Y_3$ are independent standard Gaussian random
     variables, compute the distribution of $Y = (Y_1+Y_2+Y_3)/\sqrt 3$.
   \end{enumerate}
-\end{example}
+\end{exercise}
 
 \section{Central Limit Theorem}
 \label{sec:centr-limit-theor}
 
-The Central Limit Theorem CLT is a weak convergence result about the distribution of standardized sums of independent random variables. It is usually stated assuming the existence of an infinite sequence of Independent Identically Distributed IID random variables.
+The Central Limit Theorem CLT is a weak convergence result about the
+distribution of standardized sums of independent random variables. It
+is usually stated assuming the existence of an infinite sequence of
+Independent Identically Distributed IID random variables.
 
-There are many possible statement with variate assumptions. Possibly,
-the simplest statement is the following.
+Recall weak convergence of the sequence of probability measures $(\mu_n)_n$ on $(\reals,\mathcal B)$ to the probability meassure $\mu$ means
+\begin{equation*}
+  \phi \in C_b(\reals) \quad \implies \quad \lim_{n \to \infty} \int \phi \ d\mu_n = \int \phi \ d\mu \ .
+\end{equation*}
+In terms of random variables, the sequence of real random variables $(Y_n)_n$ converges in distribution to the random variable $Y$ if
+\begin{equation*}
+  \phi \in C_b(\reals) \quad \implies \quad \lim_{n \to \infty} \expectof{\phi\circ Y_n} = \expectof{\phi\circ Y} \ .
+\end{equation*}
+Other equivalent statement are possible, for example, involving the convergence of distribution functions or the convergence of characteristic functions. 
+
+There are many possible statement CLT with variate
+assumptions. Possibly, the simplest statement and the simplest proof are the following.
+%
 \begin{proposition}Let $(X_n)_{n \in \N}$ be an IID sequence such that $\expectof {X_1} = 0$ and $\expectof {X_1^2} = 1$. The sequence $\left(\frac{X_1+\cdots+X_n}{\sqrt n}\right)_{n\in\N}$ converges weakly to the standard Gaussian distribution i.e., for all $\phi \in C_{\text{b}}$
   \begin{equation*}
     \lim_{n \to \infty} \expectof {\phi\left(\frac{X_1+\cdots+X_n}{\sqrt n}\right)} = \frac1{\sqrt{2\pi}} \int \phi(z) \euler^{- z^2/2} \ dz \ .
   \end{equation*}
 \end{proposition}
 
-\begin{example}[Proof of the CLT]
+\begin{exercise}[Proof of the CLT]
   \begin{enumerate}
   \item If $\phi \in C^3_{\text{b}}$, then the first Taylor approximation is
     \begin{equation*}
@@ -165,7 +196,7 @@ which converges to zero by dominated convergence.
   characterizes the distributions.
   \item The convergence holds for all $\phi \in C^3_{\text{b}}$. Show that it holds for all $\phi \in C_{\text{b}}$.
   \end{enumerate}  
-\end{example}
+\end{exercise}
 
 \section{Standard Gaussian Distribution}
 \label{sec:recap}
@@ -220,7 +251,7 @@ Let us write the proportionality constant $\Delta(T)$. Note that $m((ST)^{-1}(A)
     \int_{\mathcal B} f(\by) \ d\by = \int_{\mathcal A} f\circ\phi(\bx) \ \absoluteval{\detof{J\phi(\bx)}} \ d\bx
   \end{equation*}
 
-\begin{example}
+\begin{exercise}
   $\mathcal A = ]0,2\pi[\times]0,+\infty[$, $\mathcal B = \reals^2_* = \reals^2 \setminus \setof{(x,y)\in\reals^2}{x\ge0,y=0}$, $\phi(\theta,\rho)=(\rho\cos \theta,\rho\sin \theta)$.
 \begin{equation*}
   J\phi(\theta,\rho) = \begin{bmatrix}
@@ -229,7 +260,7 @@ Let us write the proportionality constant $\Delta(T)$. Note that $m((ST)^{-1}(A)
 \begin{multline*}
 \iint_{\reals^2_*} \euler^{-(x^2+y^2)/2} \ dxdy = \iint_{]0,2\pi[\times]0,+\infty[} \euler^{-(\rho^2\cos^2 \theta+ \rho^2 \sin^2 \theta)/2} \ \rho \ d\theta d\rho = \\ \iint_{]0,2\pi[\times]0,+\infty[} \euler^{-\rho^2/2} \ \rho \ d\theta d\rho = 2\pi   
 \end{multline*}
-\end{example}
+\end{exercise}
 \begin{npar}(Image of an absolutely continous measure)\normalfont
   Let $(S,\mathcal F,\mu)$ be measure space, $p \colon S \to \posreals$ a probability density, $(\mathbb X,\mathcal G)$ a measurable space, $\phi \colon S \to \mathbb X$ a measurable function. If $\phi$ has a measurable inverse, then the image measure is characterised by
   \begin{equation*}
@@ -245,7 +276,7 @@ This shows that the image of the Lebesgue measure $\ell$ under a diffeomorphism 
   \phi_{\#}\ell = \absoluteval{\detof{J\phi^{-1}}}\cdot\ell = \absoluteval{\detof{J\phi\circ\phi^{-1}}}^{-1} \cdot \ell  
 \end{equation*}
 \end{npar}
-\begin{example}
+\begin{exercise}
   $\mathcal A = ]0,1[\times ]0,1[$, $\mathcal B = \reals^2_*$, $\phi(u,v)=(\sqrt{-2\log u}\cos(2\pi v),\sqrt{-2\log u}\sin(2\pi v))$,
 \begin{equation*}
   J\phi(u,v) =
@@ -257,7 +288,7 @@ This shows that the image of the Lebesgue measure $\ell$ under a diffeomorphism 
   \detof{J\phi(u,v)} = - \frac {2\pi}{u}, \quad \detof{J\phi\circ\phi^{-1}(x,y)} = \frac{2\pi}{\euler^{(x^2+y^2)/2}} \ .
 \end{equation*}
 The image of the uniform probability measure on $]0,1[^2$ under $\phi$ is $(2\pi)^{-1} \euler^{-(x^2+y^2)/2} \ dxdy$.
-\end{example}
+\end{exercise}
 \begin{npar}[Marginalization] \normalfont
   The previous argument does not apply when $\Phi$ is not 1-to-1. We have shown in the chapter on conditioning that in such a case
   \begin{equation*}
@@ -294,11 +325,11 @@ with $c = \int (2\pi)^{-1/2} \euler^{-x_2^2/2} \ dx_2 = 1$ as the further integr
 %
   with respect to the Lebesgue measure. It is in fact a density, see above the computation of its two-fold product.
 \end{npar}
-  \begin{example}
+  \begin{exercise}
 All moments $\mu(n) = \int z^n\gamma(z) \ dz$ exists. As $z\gamma(z) = -\gamma'(z)$, integration by parts produces a recurrent relation for the moments. [Hint: Write $\int z^n \gamma(z) \ dz = \int z^{n-1} z \gamma(z) \ dz = \int z^{n-1} (-\gamma'(z)) \  dz$ and perform an integration by parts]
-\end{example}
+\end{exercise}
 
-\begin{example}  If $f \colon \reals \to \reals$ absolutely continuous i.e., $f(z) = f(0) + \int_0^z f'(u) \ du$, with
+\begin{exercise}  If $f \colon \reals \to \reals$ absolutely continuous i.e., $f(z) = f(0) + \int_0^z f'(u) \ du$, with
 $\int \absoluteval{f'(u)} \gamma(u) \ du < +\infty$ then
 $\int \absoluteval{zf(z)}\gamma(z) \ dz < +\infty$. In fact,
 \begin{multline*}
@@ -317,9 +348,9 @@ A similar argument applies to the case $z \le 0$. This implies
 \begin{equation*}
   \int zf(z) \gamma(z) \ dz = \int f(z) (-\gamma'(z)) \  dz = \int f'(z) \ \gamma(z)dz \ .
 \end{equation*}
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
   The \emph{Stein operator} is $\delta f(z) = zf(z) - f'(z)$. We have
 \begin{equation*}
   \int f(z) g'(z) \gamma(z) \ dz =  \int \delta f(z) g(z) \gamma(z) dz
@@ -328,7 +359,7 @@ We define the \emph{Hermite polynomials} to be $H_n(z) = \delta^n 1$. For exampl
 \begin{equation*}
   \int H_n(z) H_m(z) \gamma(z) \ dz = 0 \quad \text{if $n > m$} \ .
 \end{equation*}
-\end{example}
+\end{exercise}
 
 \begin{npar} \normalfont
 Let $Z \sim \gaussian 1 0 1$, $Y = b + a Z$, $a,b \in \reals$. Then $\expectof X = b$, $\expectof {X^2} = a^2 + b^2$, $\varof X = a^2$. If $a \ne 0$, then $\phi(z) = b +a z$ is a diffeomorphism with inverse $\phi^{-1} (x) = a^{-1}(x-b)$, hence the density of $X$ is 
@@ -346,7 +377,7 @@ The \emph{characteristic function} of a probability measure $\mu$ is
 If two probability measure have the same characteristic function, then they are equal.
 \end{npar}
 
-\begin{example}
+\begin{exercise}
 For the standard Gaussian probability measure we have
 \begin{equation*}
   \widehat \gamma(t) = \int \cos(tz) \ \gamma(z) dz = \euler^{-\frac{t^2}2} \ .
@@ -360,9 +391,9 @@ The characteristic function of $X \sim \gaussian 1 \mu {\sigma^2}$ is
 \begin{equation*}
   \expectof {\euler^{itX}} = \expectof {\euler^{it(\mu + \sigma Z)}} = \euler^{it\mu} \expectof{\euler^{i(\sigma^t)Z}} = \euler^{-t\mu+\frac12\sigma^2t^2}
 \end{equation*}
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
 The characteristic function $\widehat \mu$ of the probability measure $\mu$ on $\reals$ is \emph{non-negative definite}. Take $t_1,\dots,t_n$ in $\reals$ with $n = 1,2,\dots$. The matrix
 \begin{equation*}
   T = \left[ \widehat \mu(t_i - t_j) \right]_{i,j=1}^n = \left[ \int \euler^{i(t_i - t_j)x} \ \mu(dx)\right]_{i,j=1}^n 
@@ -371,15 +402,15 @@ is \emph{Hermitian}, that is the transposed matrix is equal to the conjugate mat
 \begin{multline*}
   \bm \zeta ^* \left[ \int \euler^{i(t_i - t_j)x} \ \mu(dx)\right] \bm \zeta = \sum_{i.j=1}^n \int \overline{\zeta_i}\zeta_j \euler^{i(t_i - t_j)x} \ \mu(dx) = \\ \sum_{i.j=1}^n \int \overline{\zeta_i}\euler^{it_ix} \overline{\overline{\zeta_j}\euler^{it_jx}}  \ \mu(dx) = \int \normof{\sum_{i=1}^n \overline{\zeta_i}\euler^{it_ix}}^2 \ \mu(dx) \geq 0 \ .
 \end{multline*}
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
 let $X \sim \gaussian 1 b {\sigma^2}$ and $f \colon \reals \to \reals$ continuous and bounded. Show that $\lim_{\sigma \to 0} \expectof {f(X)} = f(b)$.   
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
   Let $X$ be a real random variable with density $p$ with respect to the Lebesgue measure, and let $Z \sim \gaussian 1 0 1$. Assume $X$ and $Z$ are independent i.e., the joint random variable $(X,Z)$ has density $p \otimes \gamma$ with respect to the Lebesgue measure of $\real^2$. Compute the density of $X+Z$. [Hint: make a change of variable $(x,z) \mapsto (x+z,z)$ then marginalize.]
-\end{example}
+\end{exercise}
 
 \begin{npar} \normalfont
 The product of absolutely continuous probability measures is
@@ -394,7 +425,7 @@ The distribution $\nu_d = \gamma^{\otimes d}$ of $Z \sim \gaussian n 0 I$ has th
   \end{equation*}
 \end{npar}
 
-\begin{example} 
+\begin{exercise} 
 The \emph{moment generating function} $t \mapsto \expectof {\expof{t\cdot Z}} \in \reals_>$ is
 %
 \begin{equation*}
@@ -402,9 +433,9 @@ The \emph{moment generating function} $t \mapsto \expectof {\expof{t\cdot Z}} \i
 \end{equation*}
 %
 $M_Z$ is everywhere strictly convex and analytic.
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
   The \emph{characteristic function} $\zeta \mapsto \widehat \gamma_n(\zeta) = \expectof {\expof{\sqrt{-1} \zeta \cdot Z}}$ is
 %
 \begin{equation*}
@@ -413,7 +444,7 @@ $M_Z$ is everywhere strictly convex and analytic.
 %
 $\widehat \gamma_n$ is non-negative definite.
 %
-\end{example}
+\end{exercise}
 
 \section{Recap: Positive Definite Matrices}
 
@@ -440,7 +471,7 @@ $\widehat \gamma_n$ is non-negative definite.
 \end{npar}
 
 
-\begin{example} If you are not familiar with the previous items, try the following example.
+\begin{exercise} If you are not familiar with the previous items, try the following example.
 
   Consider the matrices
   \begin{equation*}
@@ -463,26 +494,26 @@ Chech that $\det \Sigma(\theta) = \lambda_1\lambda_2$, $\Sigma(\theta)^* = \Sigm
 \
 \end{equation*}
 Check that $A(\theta)A(\theta)^* = A(\theta)A(\theta) = \Sigma(\theta)$.
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
 Let $A \in \Oof n$ and $Z \sim \gaussian n 0 I$. Check that $AZ \sim \gaussian n 0 I$. let $B \in \MRof n r$, $r < n$, and assume that the columns are orthonormal. Check that $BZ \gaussian r 0 I$. [Hint: complete $B$ to an orthogonal matrix by adding columns, $[B \vert C] \in \Oof n$ and use the marginalization.]   
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
   Let $Z \sim \gaussian 1 0 1$, $A =
   \begin{bmatrix}
     1 \\ 1
   \end{bmatrix} \in \MRof 2 1$. Check that $AZ$ has no density with respect to the Lebesgue measure.
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
   Let $Z \sim \gaussian 2 0 I$, $A =
   \begin{bmatrix}
     1 & 1
   \end{bmatrix}
 \in \MRof 1 2$. Compute the density od $AZ$.
-\end{example}
+\end{exercise}
 
 \section{General Gaussian Distribution}
 \label{sec:GGD}
@@ -568,13 +599,13 @@ The express each term with $\Sigma$.
   \end{enumerate}
 \end{proof}
 
-\begin{example}[Linear interpolation of the Brownian motion] Let $Z_n$, $n=1,2\dots$ be IID $\gaussian 1 0 1$. Given $0 < \sigma \ll 1$, define recursively the times $t_0=0$ and $t_{n+1} = t_n + \sigma^2$. Let $T = \setof{t_n}{n = 0,1,\dots}$. Define recursively $B(0)=0$, $B(t_{n+1}) = B(t_n) + \sigma Z_n$. As $B(t_n) = \sum_{i=1}^n \sigma Z_i = \sigma \sum_{i=1}^n Z_i$, then $\varof{B(t_n)} = \sigma^2 \varof{\sum_{i=1}^n Z_i} = n\sigma^2 = t_n$. For each $t \in \posreals \setminus T$, define $B(t)$ by linear interpolation i.e., 
+\begin{exercise}[Linear interpolation of the Brownian motion] Let $Z_n$, $n=1,2\dots$ be IID $\gaussian 1 0 1$. Given $0 < \sigma \ll 1$, define recursively the times $t_0=0$ and $t_{n+1} = t_n + \sigma^2$. Let $T = \setof{t_n}{n = 0,1,\dots}$. Define recursively $B(0)=0$, $B(t_{n+1}) = B(t_n) + \sigma Z_n$. As $B(t_n) = \sum_{i=1}^n \sigma Z_i = \sigma \sum_{i=1}^n Z_i$, then $\varof{B(t_n)} = \sigma^2 \varof{\sum_{i=1}^n Z_i} = n\sigma^2 = t_n$. For each $t \in \posreals \setminus T$, define $B(t)$ by linear interpolation i.e., 
   \begin{equation*}
 B(t) = \frac{t_{n+1}-t}{t_{n+1}-t_n}B(t_n) + \frac{t - t_{n}}{t_{n+1}-t_n}B(t_{n+1}) \ , \quad t \in [t_n,t_{n+1}] \ .     
   \end{equation*}
 Compute the variance of $B(t)$ and the density of $B(t)$. 
   
-\end{example}
+\end{exercise}
 
 b\section{Independence of Jointly Gaussian Random Variables}
 \label{sec:conditioniong}
@@ -652,9 +683,9 @@ then $K_{11} = \Sigma_{1|2}^{-1}$ and $K_{11}^{-1} K_{12} = - \Sigma_{12}\Sigma_
 \end{enumerate}
 \end{proposition}
 
-\begin{example}\label{ex:1}
+\begin{exercise}\label{ex:1}
 Let $\Sigma \in \psym n$ and let $r = \rankof{\Sigma}$. We know that $\Sigma = S\Lambda S^*$ with $S \in \MRof n r$, $S^*S = I_r$, $\lambda \in \ppdiag r$. Let us define $\Sigma^+ = S \Lambda^{-1} S^*$. Then it follows by simple computation that  $\Sigma^+\Sigma=\Sigma\Sigma^+ = SS^*$. Also, $\Sigma\Sigma^+\Sigma = \Sigma$ and $\Sigma^+\Sigma\Sigma^+=\Sigma^+$. If $Y \sim \gaussian n 0 \Sigma$, then $Y = SS^*Y$. In fact, $Y - SS^*Y = (I - SS^*)Y$ is a Guassian random variable with variance $(I - SS^*)S\Lambda S^*(I-SS^*) = 0$ because $(I-SS^*)S = S - S S^* S = S-S = 0$.  
-\end{example}
+\end{exercise}
 
 \begin{proof}
 %
@@ -702,19 +733,19 @@ Right-multiply the second equation by $\Sigma_{22}^{-1}$ and substitute in the f
 \end{enumerate}
 \end{proof}
 
-\begin{example}[Whitening]
+\begin{exercise}[Whitening]
   Let $Y \sim \gaussian n b \Sigma$. Assume $\Sigma$ has rank $r$ and decomposition $\Sigma = S \Lambda S^*$, $S^*S=I_r$, $\lambda \in \ppdiag r$. Then $Z = \Lambda^{-{1/2}} S^* (Y-b)$ ia a white noise, $Z \sim \gaussian r O I$. Moreover, $b + S\Lambda^{1/2} Z = Y$. In fact, 
   \begin{equation*}
     Y - (b + S\Lambda^{1/2} Z) = (Y-b) - S\Lambda^{1/2}\Lambda^{-1/2}S^*(Y-b) = (I-SS^*)(Y-b) = 0 \ .
   \end{equation*}
-\end{example}
+\end{exercise}
 
 \section{Conditional expectation}
 %\label{sec:cond-expect}
 
-\begin{example}
+\begin{exercise}
 Let $X$ be a measurable function from $(\Omega,\mathcal F)$ to $(S,\mathcal S)$. Let $\mathcal G$ be the $\sigma$-algebra generated by $X$ i.e., $\mathcal G = X^{-1} \mathcal S$. Every $\mathcal G$-measurable real random variable $Y$ is of the form $Y = f \circ X$, where $f$ is a real random variablle on $(S,\mathcal S)$. [Hint: If $Y$ is simple, $Y = \sum_{j=1}^n y_j \one_{B_j}$, with $B_j \in \mathcal G$, then $B_j = X^{-1}(A_j)$, $A_j \in \mathcal S$. It follows that $Y = \sum_{j=1}^n y_j \one_{X^{-1}(A_j)} = \sum_{j=1}^n y_j \one_{A_j}\circ X$, hence $f = \sum_{j=1}^n y_j \one_{A_j}$. If $X$ is non-negative, take an increasing sequence of simple random variable \dots]
-\end{example}
+\end{exercise}
 
 \begin{definition}
 Let $(\Omega, \mathcal F, \mu)$ be a probability space, $X$ a real random variable with finite expectation, $\expectat \mu {\absoluteval X} < + \infty$, $\mathcal G$ a sub-$\sigma$-algebra of $\mathcal F$. A random variable $\widehat X$ is a \emph{version of the conditional expectation of $X$ given $\mathcal G$} if, and only if,
@@ -729,7 +760,7 @@ Let $(\Omega, \mathcal F, \mu)$ be a probability space, $X$ a real random variab
 
 The sub-$\mu$ in the notation is there to remember that the conditional expectation \emph{depends on the probability}. The conditions (1) and (2) in the definition provide actual equations to compute the conditional expectation, as the following examples show.
 
-\begin{example}[Examples]
+\begin{exercise}[Examples]
   \begin{enumerate}
   \item If $\mathcal G = \set{\emptyset,\Omega}$, then $\condexpat \mu X {\mathcal G} = \expectat \mu X$.
   \item If $\mathcal G = \mathcal F$, then $\condexpat \mu X {\mathcal G} = X$.
@@ -738,9 +769,9 @@ The sub-$\mu$ in the notation is there to remember that the conditional expectat
       \condexpat \mu X {\mathcal G} = \sum_{j=1}^n \frac{\int_{A_j} X \ d\mu}{\mu(A_j)} \one_{A_j} = \sum_{j=1}^n \condexpat \mu X {A_j} \one_{A_j} \ .
     \end{equation*}
 \end{enumerate}
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
 If $X$ is a real random variable with a positive density $p$, let $\mathcal G$ be the $\sigma$-algebra generated by $\aval X$. That is, the absolute value only, not the sign, is observed. In this case the conditional expectation of $X$ given $\mathcal G = \sigma(\aval X)$, breafly, given $\aval X$, is a random variable of the form $\widehat X = \hat f(\aval X)$ (condition (1)) such that $\expectof{\widehat X G} = \expectof{XG}$ for all $G = g(\aval X)$, $g$ bounded (condition (2)). As a density is given, we write the defining equation
 \begin{equation*}
   \int \hat f(\aval x) g(\aval x) p(x) \ dx = \int x g(\aval x) p(x) \ dx \ . 
@@ -754,9 +785,9 @@ hence
   \hat f(\aval x) (p(x)+p(-x)) = xp(x)-xp(-x) \ . 
  \end{equation*}
 Finally, notice that $\frac{xp(x)-xp(-x)}{p(x)+p(-x)}$ is symmetric.]
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
 Let $S_1,S_2$ be independent and exponential with mean 1. The joint density is $p_{S_1,S_2}(x_1,x_2) = \euler^{-(x_1+x_2)}(x_1,x_2 > 0)$. We want to compute the conditional expectation of $S_1$ given $S_1+S_2$. We need to find $\hat f$ such that for all bounded $g$ we have
 \begin{equation*}
   \iint_0^\infty \hat f(x_1+x_2)g(x_1+x_2)\euler^{-(x_1+x_2)} \ dx_1dx_2 = \iint_0^\infty x_1g(x_1+x_2)\euler^{-(x_1+x_2)} \ dx_1dx_2 \ .
@@ -774,9 +805,9 @@ Computing the $dz$ integrals on both sides we get
   \int_0^\infty \hat f(y)g(y)y\euler^{-y} \ dy = \int_0^\infty g(y) \frac{y^2}2 \euler^{-y} \ dy \ ,
 \end{equation*}
 hence $\hat f(y) = \frac y  2$.]
-\end{example}
+\end{exercise}
 
-\begin{example}
+\begin{exercise}
 Let $Z = (Z_1,Z_2) \sim \gaussian 2 0 I$ and define $X = Z_1$, $Y = Z_1+ Z_2$, $\mathcal G = \sigma(Y)$. To compute a version of $\condexp X {\mathcal G}$ we look for a function $\hat f$ such that $\hat f(Y)$ satisfies
 \begin{equation*}
   \expectof{X g(Y)} = \expectof{\hat f(Y) g(Y)} \quad \text{for all bounded $g$} \ .
@@ -826,7 +857,7 @@ The defining equality becomes
     \int g(y) \ (2\pi)^{-1} \frac {\pi^{1/2}}2 y \expof{-\frac14 y^2} \ dy = \int f(y)g(y) \ (2\pi \cdot 2)^{-1/2} \expof{-\frac 1 {2 \cdot 2} y^2} \ dy 
 \end{equation*}
 so that, $g$ being generic, $\hat f(y) = y/2$. (We are going to see below a simpler and more principled way to do this computation.)]
-\end{example}
+\end{exercise}
 
 \begin{npar} \normalfont
 As the equation $\expectat \mu {G(\widehat X - X)} = 0$, $G \in \mathcal L^\infty(\mathcal G)$, is linear in $G$ and continuous under bounded pointwise convergence, it is enough to check it for random variables of the for $\one_C$, $C \in \mathcal C$, $\mathcal C$ $\pi$-system generating $\mathcal G$.
@@ -890,9 +921,9 @@ This property should not be confused with \emph{linear regression}. Let be given
 be minimum. As a function of $\bm \theta$ the quadratic error is a convex function then the minimum is obtained by imposing the gradient to be zero.
 \end{npar}
 
-\begin{example}
+\begin{exercise}
 Check all detail of the previous paragraph.  
-\end{example}
+\end{exercise}
 
 \begin{npar}[Conditional expectation of a real function of a r.v.] \normalfont
   Let $(S,\mathcal S)$ be a measurable space, $Y \colon \Omega \to S$ a measurable mapping, and $\mathcal Y = \sigma(Y) = Y^{-1}(\mathcal S)$. A real random variable is $\mathcal Y$-measurable if, and only if, it is of the form $\phi \circ Y$, where $\phi$ is a real random variable on $(S,\mathcal S)$. In this situation, the definition of conditional expectaion is rephrased as follows. A version of the conditional expectation of $X$ given $\sigma(Y)$ is a $\mu$-integrable real random variable of the form $\widehat \phi_{\mu,X} \circ Y$ such that for all bounded measurable $\phi \colon S \to \reals$ it holds $\expectat \mu {\phi(Y)\widehat \phi_{\mu,X}(Y)} = \expectat \mu {\phi(Y) X}$. Notice that we could write this in terms of the joint distribution of the random variables $X$ and $Y$ as $\int \phi(y) \widehat \phi_{\mu,X}(y) \ \mu_Y(dy) = \int \phi(y)x \ \mu_{X,Y}(dxdy)$. An imprecise, but widely used, notation is $\phi_{\mu,X}(y) = \condexpat \mu X {Y=y}$, which is called the \emph{expected value of $X$, given $Y=y$}.
@@ -958,14 +989,14 @@ where $(x_1,x_2) \mapsto p_{1|2}(x_1|x_2)$ is measurable on the product space $(
 that is, $\mu = p_{1|2} \cdot \nu_1 \otimes \mu_2$. If moreover the second measure has itself a density, $\mu_2 = p_2 \cdot \nu_2$, then $\mu = (p_{1|2} \otimes p_2) \cdot \nu_1 \otimes \nu_2$  
 \end{npar}
 
-\begin{example}[Examples]\ 
+\begin{exercise}[Examples]\ 
   \begin{enumerate}
 \item Let $X$ be a real random variable with positive density $p$. The conditional distribution of $X$ given $\absoluteval X$ is 
   \item Let $T_1,T_2$ be independent and Exp$(1)$. Then the distribution of $T_1$ given $T_1+T_2=t$ is uniform on $]0,t[$.
   \item If $(Y_1,Y_2) \sim \gaussian {n_1+n_2} 0 \Sigma$, $\det \Sigma \ne 0$, find the conditional distribution of $Y_1$ given $Y_2$.
   \item If $Y_1,Y_2$ are independent and $\gaussian {1} 0 1$, find the distribution of $(Y_1,Y_2)$ given $Y_1^2 + Y_2^2$. 
   \end{enumerate}
-\end{example}
+\end{exercise}
 
 \begin{npar}[Regular version of the conditional expectation] With the notations above, denoting with $X_1,X_2$ the coordinate projection, the random variable $\widehat f(X_2) = \int f(x_1,X_2) \ \mu_{1|2}(dx_1|X_2)$ is a version of the conditional expectation $\condexpat \mu {f(X_1,X_2)}{\sigma(X_2)}$, namely a \emph{regular version}. In fact,
   \begin{equation*}
@@ -976,7 +1007,7 @@ that is, $\mu = p_{1|2} \cdot \nu_1 \otimes \mu_2$. If moreover the second measu
 \section{Conditioning of jointly Gaussian vectors}
 \label{sec:cond-jointly-gauss}
 
-\begin{example}
+\begin{exercise}
   Recall that for each $\Sigma \in \psym n$ there exists an orthogonal $U \in \Oof n$ and a non-negative diagonal $\Lambda = \diagof{\lambda_1,\dots,\lambda_n}$ such that $\Sigma = U \Lambda U^*$. By discarding the zero eigen-values, we can write $\Sigma = S D S^*$ with $S \in \MRof n r$, $S^*S = I_r$, and $D$ positive diagonal, where $r$ is the rank of $\Sigma$. If $D = \diagof{\lambda_1,\dots,\lambda_r}$, we define $D^{-1} = \diagof{\lambda_1^{-1},\dots,\lambda_r^{-1}}$ and $\Sigma^+ = S D^{-1} S^*$. It follows that
   \begin{equation*}
 \Sigma^+ \Sigma = S D^{-1} S^* S D S^* = SS^* \quad\text{and}\quad  \Sigma\Sigma^* = S D S^* S D^{-1} S^* =SS^* \ .
@@ -989,7 +1020,7 @@ Moreover, for each $x,y \in \reals^n$
 \begin{multline*}
 (x - \Pi x) \cdot (\Sigma y) =  \\ (x - \Pi x)^* (\Sigma y) = [(I - SS^*)x]^*(SDS^*y) = x^* (I-SS^*)SDS^* y = \\ x^*(SDS^* - SS^*SDS^*) =  0    
 \end{multline*}
-\end{example}
+\end{exercise}
 
 \begin{proposition}\label{prop:gauss-conditioning}\ 
   \begin{enumerate}
@@ -1124,7 +1155,7 @@ so that the exponent of the Gaussian density has the factor
 \end{enumerate}
 \end{proof}
 
-\begin{example}{Brownian bridge} [In progress]
+\begin{exercise}{Brownian bridge} [In progress]
 
 Let $B_t$ be a standard Brownian motion. Given three times $r < s < T$, the random vector $(B_r,B_s,B_T)$ is a 3-variate Gaussian vector. In fact, by definition,
 \begin{equation*}
@@ -1181,7 +1212,7 @@ The conditional expectation is
 \end{equation*}
 
 The conditional variance is 
-\end{example}
+\end{exercise}
 
 
 \vfill
