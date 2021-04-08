@@ -55,10 +55,11 @@ Gaussian probability measure}
 
 The present chapter covers the generalities about the Central Limit
 Theorem (IID case) and about the multivariate Gaussian distribution,
-together with the relevant matrix theory. Gaussian random variables
-are discussed in every Probability textbook, for example, see
-P. Malliavin \cite[Ch.~V]{malliavin:1995} (intermediate) and S.H. Ross
-\cite[Ch.~10]{ross:2010introduction10} (elementary, many editons
+together with the relevant matrix theory. Almost every Probability
+textbook discusses Gaussian random variables, for example,
+P. Malliavin \cite[Ch.~V]{malliavin:1995} (graduate),
+\cite[Ch~16]{jacod|protter:2003} (undergraduate), and S.H. Ross
+\cite[Ch.~10]{ross:2010introduction10} (elementary, many editions
 available). A classical reference about Gaussian random variables is
 \cite{anderson:2003-3ed} (many reprints available). A modern advanced
 reference for positive definite matrices is \cite{bhatia:2007}. An
@@ -66,8 +67,8 @@ advanced reference about Gaussian random variables from the functional
 point of view is \cite{janson:1997-GHS}
 
 Many topics are reviewed in the form of an exercise, for example, the
-basic properties of the uni-variate Gaussian distribution. The reader
-is urged to check this material. When needed, extensive asides treat
+basic properties of the univariate Gaussian distribution. We urge the
+reader to check this material. When needed, extensive asides treat
 relevant topics in Linear Algebra and Calculus. A reference for the R
 language is \cite{rcoreteam:2020}.
 
@@ -75,24 +76,66 @@ language is \cite{rcoreteam:2020}.
 \label{sec:introduction}
 
 The standard Gaussian distribution is the probability measure $\nu$
-with density $\gamma(z) = (2\pi)^{-1/2} \euler^{-z^2/2}$ with respect
-to the Lebesgue measure space. The distribution function is
-$F_\nu(x) = (2\pi)^{-1/2} \int_{-\infty}^x \euler^{-u^2/2} \ du$ with
-no closed form expression. A basic graph of the density is produced in
-R with
+with density
+\begin{equation*}
+  \gamma(z) = (2\pi)^{-1/2} \euler^{-z^2/2}
+\end{equation*}
+with respect to the Lebesgue measure space $(\reals,\mathcal B,m)$.
+
+\subsection{Recap: Change of variable formula in $\reals^d$}. See \cite{rudin:1987-3rd} on multivariate differential Calculus. 
+Recall that the derivative at $x$ of a differentiable $f \colon \reals^n \to reals ^m$ is a linear mapping $df(x) \colon \reals^n \to reals ^m$. Given respective bases, the linear mapping is expressed by a matrix $m \times n$, the Jacobian matrix. The derivative of the composite function is given by $d g \circ f (x) = dg(f(x) \circ df(x)$. In particular,
+\begin{equation*}
+  I = d f^{-1} \circ f(x) = d f^{-1} (f(x)) \circ df(x) \quad \Rightarrow \quad df^{-1}(y) = f(f^{-1}(y))^{-1} \ . 
+\end{equation*}
+
+Let $\mathcal A, \mathcal B \subset \reals^d$ be open and $\phi$ be a
+\emph{diffeomerphism} from $\mathcal A$ onto $\mathcal B$. That is,
+$\phi$ is 1-to-1 and both $\phi$ and $\phi^{-1}$ are differentiable.
+Let $J\phi \colon \mathcal A \to \Mof d$ be the Jacobian mapping of
+$\phi$ and $J\phi^{-1} \colon \mathcal B \to \Mof d$ the Jacobian
+mapping of $\phi^{-1}$, so that
+$J\phi^{-1} = \left(J\phi\circ \phi^{-1}\right)^{-1}$. For each
+non-negative $f \colon \mathcal B \to \reals^n$, it holds
+  \begin{equation*}\label{eq:change}
+    \int_{\mathcal B} f(\by) \ d\by = \int_{\mathcal A} f\circ\phi(\bx) \ \absoluteval{\detof{J\phi(\bx)}} \ d\bx \ ,
+  \end{equation*}
+  see below for more details. Notice that the equation above shows that \emph{the push-forward of the measure $\absoluteval{\detof{J\phi}} \cdot m$ is $m$}.
+  
+\begin{exercise}
+  $\mathcal A = ]0,2\pi[\times]0,+\infty[$, $\mathcal B = \reals^2_* = \reals^2 \setminus \setof{(x,y)\in\reals^2}{x\ge0,y=0}$, $\phi(\theta,\rho)=(\rho\cos \theta,\rho\sin \theta)$.
+\begin{equation*}
+  J\phi(\theta,\rho) = \begin{bmatrix}
+- \rho \sin\theta & \cos \theta \\ \rho \cos \theta & \sin \theta  \end{bmatrix}
+, \quad \detof{J\phi(\theta,\rho)} = - \rho\end{equation*}
+\begin{multline*}
+\iint_{\reals^2_*} \euler^{-(x^2+y^2)/2} \ dxdy = \iint_{]0,2\pi[\times]0,+\infty[} \euler^{-(\rho^2\cos^2 \theta+ \rho^2 \sin^2 \theta)/2} \ \rho \ d\theta d\rho = \\ \iint_{]0,2\pi[\times]0,+\infty[} \euler^{-\rho^2/2} \ \rho \ d\theta d\rho = 2\pi   
+\end{multline*}
+\end{exercise}
+
+\subsection{Properties of $\gaussian 1 b {a^2}$.}
+Remarkably, the best proof that $\gamma$ is indeed a probability
+density is bivariate. With Fubini theorem and polar coordinates we
+obtain
+\begin{equation*}
+  \left(\int \euler^{-z^2/2} \ dz\right)^2 = \iint \euler^{-(x^2+y^2)/2} \ dxdy = \int_0^{2\pi} \int_0^\infty \euler^{-\rho^2/2} \ \rho \ d\rho = 2\pi \left. -\euler^{\rho^2/2} \right|_0^\infty = 2\pi \ .
+  \end{equation*}
+
+  The distribution function is
+  $F_\nu(x) = (2\pi)^{-1/2} \int_{-\infty}^x \euler^{-u^2/2} \ du$
+  with no closed form expression.
+
+  A graph of the density is
+  produced in R with
 \begin{verbatim}
 x <- -400:400/100; plot(x,dnorm(x),type="l")
 \end{verbatim}
 %
-\begin{exercise}[Gaussian distribution]\ 
+\begin{exercise}[Gaussian distribution] Note: solutions below! 
 \begin{enumerate}
-\item Check that $\gamma$ is indeed a density.
 \item Compute the moments $\nu_n = \int x^n \ \nu(dx)$, $n \in \N$. [Use $\gamma'(x) = -x \gamma(x)$.]
 \item Compute the moment generating function $M_\nu(t) = \int \euler ^{tx} \ \nu(dx)$. Check that $M^{(n)}_\nu(0) = \nu_n$.
 \item Compute the characteristic function $\Phi_\nu(t) = \int \euler ^{\sqrt{-1} tx} \ \nu(dx)$.
 \item Compute the first two derivatives of the cumulant generating function $\kappa_\nu(t) = \log M_\nu(t)$.
-\item Compute the density of $X = aZ + b$ with $a,b \in \R$ and $Z \sim p_\nu$. These are the general Gaussian random variables. 
-\item Compute the density of $Z + b$ with respect to the distribution of $Z$.
 \item \label{item:stein} Compute $\delta \psi$ such that
   \begin{equation*}
     \int \phi'(x) \psi(x)  \nu(dx) = \int \phi(x) \delta \psi(x) \ \nu(dx)
@@ -103,8 +146,34 @@ for all $\phi,\psi \in C^1$ such that the integrals are well defined.
 \end{enumerate}  
 \end{exercise}
 
-\begin{exercise}[Independent Gaussian random variables]\ 
+Let us compute the density of $X = aZ + b$ with $a,b \in \R$ and $Z \sim \gamma$. The distribution $\mu_X$ of $X$ is the push-forward of the distribution $\gamma \cdot m$ with the function $z \mapsto az + b$. For all bounded measurable $f$,
+\begin{multline*}
+  \int f(x) \ \mu_X(dx) = \int f(az+b) \ \gamma(z) \ dz = \frac1{\sqrt{2\pi}} \int f(az+b) \euler^{-z^2/2} \ dz = 
+\\ \frac1{\sqrt{2\pi}} \int f(x) \euler^{-\left(\frac{x-b}{a}\right)^2/2} \ \frac1{\aval a} \ dx = \frac1{\sqrt{2\pi a^2}} \int f(x) \euler^{-\frac1{2a^2}(x-a)^2} \ dx\ .
+\end{multline*}
+The probability measure  $\mu_X$ has density
+\begin{equation*}
+  x \mapsto \frac1{\sqrt{2\pi a^2}} \euler^{-\frac1{2a^2}(x-a)^2}
+\end{equation*}
+and is denoted by $\gaussian 1 b {a^2}$.
+
+We define $\gaussian 1 b 0$, that is, the distribution of $0Z+b = b$, to be the Dirac probability measure at $b$. 
+The probability measures $\gaussian 1 a b$, $a,b \in \reals$ are the general Gaussian probability measures. Notice that this statistical model is a \emph{transformation model}, that is, it includes all the push-forwards of the probability measure $\gamma \cdot m$ with the elements of the group of affine transformations. This model is \emph{closed} and \emph{connected with affine transformations}. It has an intrinsic algebraic structure.
+
+The parameter $b$ is the mean value,
+\begin{equation*}
+  \expectof X = \expectof {aZ+b} = a \expectof Z + b = b \ ,
+\end{equation*}
+and the parameter $a^2$ is the variance,
+\begin{equation*}
+  \varof X = \expectof {(X - \expectof X)^2} = a^2 \expectof {Z^2} = a^2 \ .
+\end{equation*}
+
+The mapping $X \mapsto \frac1{\sqrt {\varof X}} (X - \expectof X))$ is called \emph{standardization}.
+
+\begin{exercise}
   \begin{enumerate}
+    \item Compute the density of $Z + b$ with respect to the distribution of $Z$.
   \item Show that the Lebesgue measure on $]0,1[^2$ is the product
     measure of the two Lebesgue measure on the factors $]0,1[$.
   \item Use the previous remark to construct two independent Gaussian random variables. [Use $F_\nu^{-1}$ to transform the uniform to the Gaussian.]
@@ -114,7 +183,64 @@ for all $\phi,\psi \in C^1$ such that the integrals are well defined.
   \end{enumerate}
 \end{exercise}
 
-\section{Central Limit Theorem}
+\subsection{Independent Gaussian random variables}
+
+Recall that $Z_1$ and $Z_2$ are independent if the joint distribution is equal to the product of the marginal distributions, $\mu_{(Z_1,Z_2)} = \mu_{Z_1} \otimes \mu_{Z_2}$, which means,
+\begin{equation*}
+  \expectof{f(Z_1,Z_2)} = \int f(z_1,z_2) \ \mu_{(Z_1,Z_2)}(dz_1,dz_2) = \iint f(z_1,z_2) \ \mu_{Z_1}(dz_1) \ \mu_{Z_2}(dz_2) \ .
+  \end{equation*}
+
+  If $Z_1,Z_2 \sim \gaussian 1 0 1$, then
+  \begin{align*}
+    \expectof{f(Z_1,Z_2)} &= \iint f(z_1,z_2) \ \left(\frac1{\sqrt{2\pi}} \euler^{-z_1^2/2} \ dz_1\right)  \  \left(\frac1{\sqrt{2\pi}} \euler^{-z_2^2/2} \ dz_2 \right) = \\
+    &= \iint f(z_1,z_2) \left(\frac1{2\pi} \euler^{-(z_1^2+z_2^2)/2}\right) \ dz_1\ dz_2 \ .
+  \end{align*}
+
+  Recall that, if $f(z_1,z_2) = f_1(z_1)f_2(z_2)$, we can write the independence as
+  \begin{equation*}
+    \expectof {f_1(Z_1) f_2(Z_2)} = \expectof{f_1(Z_1)} \expectof {f_2(Z_2)} 
+  \end{equation*}
+  
+  \begin{proposition} 
+    \begin{enumerate}
+    \item Two Gaussian random variable $X_1$ $X_2$ are independent if, and only if, the respective standardized $Z_1$, $Z_2$ are independent. Notice that the constant case is immediate.
+  \item In such a case, $X_1+X_2 \sim \gaussian 1 {b_1+b_2} {a_1^2+a_2^2}$.  \end{enumerate}
+  \end{proposition}
+
+  \begin{proof}\ 
+    \begin{enumerate}
+    \item Every function of $X_j$ is a function of $Z_j$.
+    \item $X_1+X_2 = a_1Z_1+a_2Z_2 + b_1 + b_2$, then we want prove $a_1Z_1+a_2Z_2 \sim \gaussian 1 0 {a_1^2+a_2^2}$. Now,
+      \begin{equation*}
+        \expectof {f(a_1Z_1+a_2Z_2)} = \iint f(a_1z_1 + a_2z_2) \left(\frac1{2\pi} \euler^{-(z_1^2+z_2^2)/2}\right) \ dz_1\ dz_2
+      \end{equation*}
+    \end{enumerate}
+  \end{proof}
+
+  Consider the mapping
+  \begin{equation*}
+    \phi^{-1} \colon (z_1,z_2) \mapsto (a_1z_1+a_2z_2,-a_2z_1+a_1z_2) \ .
+  \end{equation*}
+  It is a diffeomorphism of $\reals^2$ with Jacobian
+  \begin{equation*}
+    J\phi^{-1}(z_1,z_2) =
+    \begin{bmatrix}
+      a_1 & a_2 \\ -a_2 & a_1
+    \end{bmatrix} \quad \detof {J\phi(z_1,z_2)} = a_2^2 + a_2^2 \ .
+  \end{equation*}
+The Jacobian of $\phi$ is $1/(a_1^2+a_2^2)$. Note that
+  \begin{equation*}
+   \frac1{a_1^2+a_2^2} [(a_1z_1+a_2z_2)^2 + (-a_2z_1+a_1z_2)^2] = z_1^2+z_2^2 \ .
+ \end{equation*}
+ The change of variable equation gives
+ \begin{multline*}\expectof {f(a_1Z_1+a_2Z_2)} = \\ \iint f(a_1z_1 + a_2z_2) \left(\frac1{2\pi} \euler^{-\frac1{2(a_1^2+a_2^2)} [(a_1z_1+a_2z_2)^2 + (-a_2z_1+a_1z_2)^2]}\right) \ dz_1\ dz_2 = \\
+   \iint f(y_1) \left(\frac1{2\pi} \euler^{-\frac1{2(a_1^2+a_2^2)} (y_1^2 + y_2^2)}\right) \frac1{a_1^2+a_2^2} \ dy_1 \ dy_2 = \\
+   \int f(y_1) \left(\frac1{\sqrt{2\pi(a_1^2+a_2^2)}} \euler^{-y_1^2/(2(a_1^2+a_2^2))}\right) \ dy_1
+   \int \left(\frac1{\sqrt{2\pi(a_1^2+a_2^2)}} \euler^{-y_2^2/(2(a_1^2+a_2^2))}\right) \ d y_2 = \\
+   \int f(y) \left(\frac1{\sqrt{2\pi(a_1^2+a_2^2)}} \euler^{-y^2/(2(a_1^2+a_2^2))}\right) \ dy \ .
+ \end{multline*}
+We have proved that $a_1Z_1+a_2Z_2 \sim \gaussian 1 0 {a_1^2+a_2^2}$.
+ \section{Central Limit Theorem}
 \label{sec:centr-limit-theor}
 
 The Central Limit Theorem CLT is a weak convergence result about the
@@ -246,21 +372,6 @@ Let us show that \emph{the proportionality constant is $|\detof{T}|^{-1}$}, that
 \end{equation*}
 Let us write the proportionality constant $\Delta(T)$. Note that $m((ST)^{-1}(A)) = m(T^{-1}S^{-1}(A)) = \Delta(T)m(S^{-1}(A)) = \Delta(T)\Delta(S)m(A)$ that is, $\Delta(ST) = \Delta(T)\Delta(S)$. If $T$ is a permutation matrix, then $\Delta(T) = 1 = |\detof T|^{-1}$; If $T = [\alpha e_1 \cdots e_n]$, then $\Delta(T) = |\alpha|^{-1} = |\detof T|^{-1}$; If $T = [(e_1+e_2) \ e_2 \cdots e_n]$ the same result follows. As all matrices are a product of such matrices, the result is proved.
 
-\subsection{Change of variable formula in $\reals^d$} Let $\mathcal A, \mathcal B \subset \reals^d$ be open and $\phi$ be a diffeomerphism from $\mathcal A$ onto $\mathcal B$. Let $J\phi \colon \mathcal A \to \Mof d$ be the Jacobian mapping of $\phi$ and $J\phi^{-1} \colon \mathcal B \to \Mof d$ the Jacobian mapping of $\phi^{-1}$, so that $J\phi^{-1} = \left(J\phi\circ \phi^{-1}\right)^{-1}$. For each non-negative $f \colon \mathcal B \to \reals^n$,
-  \begin{equation*}\label{eq:change}
-    \int_{\mathcal B} f(\by) \ d\by = \int_{\mathcal A} f\circ\phi(\bx) \ \absoluteval{\detof{J\phi(\bx)}} \ d\bx
-  \end{equation*}
-
-\begin{exercise}
-  $\mathcal A = ]0,2\pi[\times]0,+\infty[$, $\mathcal B = \reals^2_* = \reals^2 \setminus \setof{(x,y)\in\reals^2}{x\ge0,y=0}$, $\phi(\theta,\rho)=(\rho\cos \theta,\rho\sin \theta)$.
-\begin{equation*}
-  J\phi(\theta,\rho) = \begin{bmatrix}
-- \rho \sin\theta & \cos \theta \\ \rho \cos \theta & \sin \theta  \end{bmatrix}
-, \quad \detof{J\phi(\theta,\rho)} = - \rho\end{equation*}
-\begin{multline*}
-\iint_{\reals^2_*} \euler^{-(x^2+y^2)/2} \ dxdy = \iint_{]0,2\pi[\times]0,+\infty[} \euler^{-(\rho^2\cos^2 \theta+ \rho^2 \sin^2 \theta)/2} \ \rho \ d\theta d\rho = \\ \iint_{]0,2\pi[\times]0,+\infty[} \euler^{-\rho^2/2} \ \rho \ d\theta d\rho = 2\pi   
-\end{multline*}
-\end{exercise}
 \begin{npar}(Image of an absolutely continous measure)\normalfont
   Let $(S,\mathcal F,\mu)$ be measure space, $p \colon S \to \posreals$ a probability density, $(\mathbb X,\mathcal G)$ a measurable space, $\phi \colon S \to \mathbb X$ a measurable function. If $\phi$ has a measurable inverse, then the image measure is characterised by
   \begin{equation*}
